@@ -11,5 +11,5 @@ app.use('/api', apiRoutes);
 db.sequelize.sync().then(() => {
     app.listen(port, () => {
         console.log(`Server running on http://localhost:${3000}`)
-    })
-})
+    });
+});
