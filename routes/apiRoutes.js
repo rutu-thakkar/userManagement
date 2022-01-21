@@ -4,9 +4,21 @@ const db = require('../models')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 require('dotenv').config();
+const nodemailer = require('nodemailer');
 
 const JWT_SECRET = process.env.JWT_SECRET
 const port = process.env.PORT
+
+const transport = nodemailer.createTransport({
+    service: "Gmail",
+    auth: {
+        user: process.env.User,
+        pass: process.env.Pass
+    }
+});
+
+var mailOptions, host, link
+
 
 // demo route
 route.get('/demo', (req, res) => {
@@ -218,13 +230,24 @@ route.post('/forgot-password', (req, res) => {
 
         const token = jwt.sign(payload, secret_key, { expiresIn: '15m' });
 
-        const link = `http://localhost:${port}/api/reset-password/${data.id}/${token}`
+        const link = `http://${req.get('host')}/api/reset-password/${data.id}/${token}`
         console.log(link);
-        res.send("Reset password link has been send to your email");
 
+        mailOptions = {
+            to: data.email,
+            subject: "Reset Password Link",
+            html: "hello " + data.email + " , Kindly click on the link to reset your password.\n" + link
+        }
 
-
-
+        transport.sendMail(mailOptions, (error, response) => {
+            if (error) {
+                res.json({
+                    message: "Error : " + error
+                })
+                return
+            }
+            res.send("Reset password link has been send to your email");
+        });
     }).catch((error) => {
         res.json({
             message: "Error finding the user" + error
