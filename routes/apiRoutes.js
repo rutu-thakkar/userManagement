@@ -3,6 +3,10 @@ const route = express.Router();
 const db = require('../models')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+require('dotenv').config();
+
+const JWT_SECRET = process.env.JWT_SECRET
+const port = process.env.PORT
 
 // demo route
 route.get('/demo', (req, res) => {
@@ -183,26 +187,118 @@ route.put('/update-user', (req, res) => {
     })
 });
 
+//forgot password
 route.get('/forgot-password', (req, res) => {
-    res.send('forgot password?')
+    res.render('forgotpassword');
 });
 
 route.post('/forgot-password', (req, res) => {
 
-});
-route.get('/reset-password', (req, res) => {
+    // check if user exist or not
+    db.user.findOne({
+        where: {
+            email: req.body.email
+        }
+    }).then((data) => {
+        if (!data) {
+            res.json({
+                message: "No Account Found By this email"
+            })
+            return
+        }
 
+        //user exist, one time link valid for 15 minutes
+        // res.send("you are there..")
+
+        const secret_key = JWT_SECRET + data.password;
+        const payload = {
+            email: data.email,
+            id: data.id
+        }
+
+        const token = jwt.sign(payload, secret_key, { expiresIn: '15m' });
+
+        const link = `http://localhost:${port}/api/reset-password/${data.id}/${token}`
+        console.log(link);
+        res.send("Reset password link has been send to your email");
+
+
+
+
+    }).catch((error) => {
+        res.json({
+            message: "Error finding the user" + error
+        });
+    });
 });
+route.get('/reset-password/:id/:token', (req, res) => {
+    const { id, token } = req.params
+    // res.json({
+    //     id,
+    //     token
+    // })
+
+    // get details of user
+    db.user.findOne({
+        where: {
+            id: id
+        }
+    }).then((data) => {
+        if (!data) {
+            res.json({
+                message: "No User Found"
+            })
+            return
+        }
+
+        const secret_key = JWT_SECRET + data.password;
+
+        try {
+            const payload = jwt.verify(token, secret_key)
+            console.log(payload)
+            res.render('reset-password', { email: payload.email })
+        } catch (error) {
+            res.json({
+                message: "Error : " + error
+            });
+        }
+    });
+});
+
 route.post('/reset-password', (req, res) => {
-
+    db.user.findOne({
+        where: {
+            email: req.body.email
+        }
+    }).then((data) => {
+        if (req.body.password === req.body.repassword) {
+            bcrypt.genSalt(10, (error, salt) => {
+                bcrypt.hash(req.body.password, salt, (error, hash) => {
+                    db.user.update({
+                        password: hash
+                    }, {
+                        where: {
+                            email: data.email
+                        }
+                    }).then((data) => {
+                        if (data === 0) {
+                            res.json({
+                                message: "Something went wrong, password not changed!"
+                            });
+                            return
+                        };
+                        res.json({
+                            message: "password changed!"
+                        });
+                    }).catch((error) => {
+                        res.json({
+                            message: "Error : " + error
+                        });
+                    });
+                });
+            });
+        };
+    });
 });
-
-
-
-
-
-
-
-
 
 module.exports = route;
