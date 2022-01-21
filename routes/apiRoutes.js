@@ -2,18 +2,23 @@ const express = require("express");
 const route = express.Router();
 const db = require('../models')
 
+// demo route
+route.get('/demo', (req, res) => {
+    res.send("hey there!")
+})
+
 // Get All Users
-route.get('/allUsers', (req,res) => {
+route.get('/allUsers', (req, res) => {
     db.user.findAll().then((data) => {
         res.send(data);
     })
 });
 
 //get specific User by id
-route.get('/getSpecificUser/:id', (req,res) => {
+route.get('/getSpecificUser/:id', (req, res) => {
     db.user.findAll({
-        where : {
-            id : req.params.id
+        where: {
+            id: req.params.id
         }
     }).then((data) => {
         res.send(data)
@@ -21,10 +26,10 @@ route.get('/getSpecificUser/:id', (req,res) => {
 })
 
 //get Specific User by username
-route.get('/getUserbyname', (req,res) => {
+route.get('/getUserbyname', (req, res) => {
     db.user.findAll({
         where: {
-            username : req.body.username
+            username: req.body.username
         }
     }).then((data) => {
         if (Object.keys(data).length === 0) {
@@ -35,7 +40,7 @@ route.get('/getUserbyname', (req,res) => {
 });
 
 //Get user by email
-route.get('/getUserByEmail', (req,res) => {
+route.get('/getUserByEmail', (req, res) => {
     // console.log(req.body.email)
     db.user.findAll({
         where: {
@@ -52,7 +57,7 @@ route.get('/getUserByEmail', (req,res) => {
 
 
 // Create/Add new User
-route.post('/newUser', (req,res) => {
+route.post('/newUser', (req, res) => {
     db.user.create({
         username: req.body.username,
         email: req.body.email
@@ -62,9 +67,9 @@ route.post('/newUser', (req,res) => {
 });
 
 //delete by ID
-route.delete('/deleteuser/:id', (req,res) => {
+route.delete('/deleteuser/:id', (req, res) => {
     db.user.destroy({
-        where : {
+        where: {
             id: req.params.id
         }
     }).then((data) => {
@@ -73,13 +78,13 @@ route.delete('/deleteuser/:id', (req,res) => {
 });
 
 //delete by email
-route.delete('/deleteUserByEmail', (req,res) => {
+route.delete('/deleteUserByEmail', (req, res) => {
     db.user.destroy({
-        where : {
-            email : req.body.email
+        where: {
+            email: req.body.email
         }
     }).then((data) => {
-        if(data === 0) {
+        if (data === 0) {
             return res.send('no record found having this email')
         }
         res.send(data + ' record deleted!')
@@ -87,13 +92,13 @@ route.delete('/deleteUserByEmail', (req,res) => {
 })
 
 
-route.put('/edit/:id', (req,res) => {
+route.put('/edit/:id', (req, res) => {
     db.user.update({
-        username : req.body.username,
-        email: req.body.email 
+        username: req.body.username,
+        email: req.body.email
     }, {
         where: {
-            id : req.params.id
+            id: req.params.id
         }
     }).then((data) => {
         res.send(data + ' updated!')
