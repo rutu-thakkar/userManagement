@@ -1,0 +1,205 @@
+swagger: "2.0"
+info:
+  title : "User API"
+  description: "User Management system"
+  contact:
+    email: demo@gmail.com
+servers:
+  url: "http://localhost:3000/"
+  description: "This is my local server"
+tags:
+  - name : USERS
+    description: User API
+schemas: [http,https]
+paths:
+  /api/allUsers:
+    get:
+      tags:
+          - USERS
+      summary: "returns all users"
+      description: "returns all users"
+      responses:
+        200:
+          description: "Success"
+
+  /api/getSpecificUser/{id}:
+    get:
+      tags:
+        - USERS
+      summary: "returns user By ID"
+      description: "returns specific user By ID"
+      parameters:
+        - name : "id"  
+          in : path
+          required: true
+          schema: 
+            type: integer
+      responses:
+        200:
+          description: "Success"
+
+  /api/getUserbyname:
+    post:
+      tags:
+        - USERS
+      summary: "returns user by username"
+      description: "returns user by username"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema: 
+            type: object
+            properties:
+              username:
+                type: string
+                description: "username of the user"
+      responses:
+        200:
+          description: "Success"
+
+  /api/getUserByEmail:
+    post:
+      tags:
+        - USERS
+      summary: "return user by email"
+      description: "return specific user by using the email"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                description: "Email of the user you are trying to get"
+      responses:
+        200:
+          description: "Success"
+
+  /api/newUser:
+    post:
+      tags:
+        - USERS
+      summary: "Create User"
+      description: "Create New User"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: "User object that needs to be added"
+          schema:
+            type: object
+            required:
+              - username
+              - email
+              - password
+            properties:
+              username:
+                type: string
+                description: "Username of the user"
+              email:
+                type: string
+                description: "email ID of the user"
+              password:
+                type: string
+                description: "password"
+      responses:
+        200:
+          description: "Success"
+
+  /api/update-user:
+    put:
+      tags:
+        - USERS
+      summary: "Update User"
+      description: "Update User by ID"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: User Object that needs to be updated
+          schema:
+            type: object
+            required:
+              - id
+              - username
+              - email
+            properties:
+              id:
+                type: integer
+                description: "Id of the user"
+              username:
+                type: string
+                description: "username of the user"
+              email:
+                type: string
+                description: "email ID of the user"
+      responses:
+        200:
+          description: "success"
+
+
+
+
+
+
+
+
+
+
+  /api/deleteuser/{id}:
+    delete:
+      tags:
+        - USERS
+      summary: "delete user by id"
+      description: "Delete specific user by the id"
+      parameters:
+        - name : "id"
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: "success"
+
+
+  /api/deleteUserByEmail:
+    delete:
+      tags:
+        - USERS
+      summary: "Delete user by email"
+      description: "Delete user by email ID"
+      parameters:
+        - name : body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                description: "Email Id of the user you want to delete"
+      responses:
+        200:
+          description: "Success"
+        404:
+          description: "Page Not found"
+        500:
+          description: "Internal server error"
